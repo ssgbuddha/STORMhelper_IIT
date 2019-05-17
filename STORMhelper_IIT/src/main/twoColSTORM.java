@@ -87,8 +87,8 @@ public class twoColSTORM {
     }
     
     public void takeTimeSeries(String path) {
-        SequenceSettings acqSet = gui_.getAcquisitionManager().getAcquisitionSettings();
-        int numFrames = acqSet.numFrames;
+        
+        int numFrames = (int) Double.parseDouble(parent_.frameNumberField.getText());
         String unique_name = gui_.data().getUniqueSaveDirectory(path);
         Datastore ds = null;
         try {

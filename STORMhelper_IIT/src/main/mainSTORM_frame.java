@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import static main.twoColSTORM.gui_;
 import mmcorej.Configuration;
 import mmcorej.PropertySetting;
+import mmcorej.StrVector;
 import org.micromanager.acquisition.ChannelSpec;
 /**
  *
@@ -807,8 +808,62 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     }
  
     public String[][] satyaGetSetings() {
-        String[][] arr=null;
+        
+        String groupName = core_.getChannelGroup();
+        System.out.println("Channel groupe: " + groupName);
+        StrVector presetList = core_.getAvailableConfigs(groupName);
+        String currPreset = presetList.get(0);
+        Configuration configData;
         try {
+            configData = core_.getConfigData(groupName, currPreset);
+        } catch (Exception ex) {
+            configData = null;
+            Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        int s = (int) configData.size();
+        String[][] arr = new String[s][8];
+        
+        for (int i=0; i<presetList.size(); i++){
+            try {
+                currPreset = presetList.get(i);
+                System.out.println("Configuration " + presetList.get(i));
+                configData = core_.getConfigData(groupName, currPreset);
+                String dName = "null";
+                String pName = "null";
+                String pValue = "null";
+                for (int ii=0; ii<=s-1; ii++){
+                    PropertySetting set = configData.getSetting(ii);
+                    dName = set.getDeviceLabel();
+                    pName = set.getPropertyName();
+                    pValue = set.getPropertyValue();
+                    System.out.println("device name: " + dName);
+                    System.out.println("property name: " + pName);
+                    System.out.println("property value: " + pValue);
+                
+                    arr[i][0] = groupName;
+                    arr[i][1] = currPreset;
+                    if("activationTime".equals(dName)){
+                            arr[i][2] = pValue;
+                        }else if("activationPower".equals(dName)){
+                            arr[i][3] = pValue;
+                        }else if("Core".equals(dName)){
+                            arr[i][7] = pValue;
+                        }else{
+                            if(Double.parseDouble(pValue)!=0){
+                                arr[i][4] = pValue;
+                                arr[i][5] = dName;
+                                arr[i][6] = pName;
+                            }
+                        }
+                }
+                
+            } catch (Exception ex) {
+                
+                Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
+            }      
+        }
+        return arr;
+        /*try {
             //Configuration configData = core_.getConfigGroupState("STORM");
             Configuration configData = core_.getConfigData("STORM", "STORM 462");
             System.out.println("STORM data 462");
@@ -878,12 +933,71 @@ public class mainSTORM_frame extends javax.swing.JFrame {
                         break;
                     }
                 }  
-            }*/
+            }
             return arr;
         } catch (Exception ex) {
             Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
             return null;
-        }        
+        }*/ 
+        
+    }
+    
+    void satyaStartSTORM(String[][] arr) {
+        double aP = 0;
+        double eP = 0;
+        long aT = 0;
+        int active = 0;
+        String laserN = null;
+        String propN = null;
+        String chN = null;
+        String groupN = null;
+        
+        // get number of colors and basic path
+        int numCol = arr.length;
+        SequenceSettings acqSet = gui_.getAcquisitionManager().getAcquisitionSettings();
+        String mainPath = savePathField.getText();
+        String expName = expFolderField.getText();
+        String pathB = mainPath+"\\"+expName;
+        
+        for(int i=0; i<numCol; i++){
+            active =(int) Double.parseDouble(arr[i][7]);
+            if(active==1){
+                // get parameters for specific color
+                aP = Double.parseDouble(arr[i][3]);
+                eP = Double.parseDouble(arr[i][4]);
+                aT = (long) Double.parseDouble(arr[i][2]);
+                laserN = arr[i][5];
+                propN = arr[i][6];
+                chN = arr[i][1];
+                groupN = arr[i][0];
+                System.out.println("Group name: " + groupN + " channel name: " + chN + " ch count: " + i);
+                System.out.println("Laser name: " + laserN + " property name: " + propN + " excPow: " + eP + " actPow: " + aP + " actTimePow: " + aT);
+
+                // set parameters
+                try {
+                    //gui_.shutter().setShutter(false);
+                    System.out.println("Set: "+ laserN + " " + propN + " to " + aP);
+                    core_.setProperty(laserN, propN, aP);
+                    System.out.println("sleep for "+  aT);
+                    TimeUnit.SECONDS.sleep(aT);
+                    System.out.println("Set: "+ laserN + " " + propN + " to " + eP);
+                    core_.setProperty(laserN, propN, eP);
+                } catch (Exception ex) {
+                    Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                String new_path = pathB + "\\" + chN;
+
+                tcs_.takeTimeSeries(new_path);
+
+                try {
+                    core_.setProperty(laserN, propN, 0);
+                } catch (Exception ex) {
+                    Logger.getLogger(twoColSTORM.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        System.out.println("Finito");
     }
     
     public static void startMDA(){
@@ -1014,14 +1128,30 @@ public class mainSTORM_frame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_savePathFieldActionPerformed
 
+    public void satyaSetLasersOff(String[][] arr){
+        double p = 0;
+        String laserN = null;
+        String propN = null;
+        int s = arr.length;
+        for(int i=0; i<s-1; i++){
+            laserN = arr[i][5];
+            propN = arr[i][6];
+            try {
+                core_.setProperty(laserN, propN, p);
+            } catch (Exception ex) {
+                Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
     private void satyaStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_satyaStartActionPerformed
         System.out.println("Satya start STORM");
+        satyaSetLasersOff(satyaGetSetings()); 
         satya2colThread = new Thread(new satyaThread(this));
         satya2colThread.start();
         while(satya2colThread.isAlive()){};
         System.out.println("Satya end STORM");
-        //sets lasers off
-        //setAllLasersOff(getMultiColSTORMdata());        
+        satyaSetLasersOff(satyaGetSetings());        
     }//GEN-LAST:event_satyaStartActionPerformed
 
     public void setUpperLim(double upperLim) {
@@ -1100,7 +1230,7 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     public javax.swing.JTextField afPathText;
     private javax.swing.JButton autofocusTest_button;
     private javax.swing.JTextField expFolderField;
-    private javax.swing.JTextField frameNumberField;
+    public javax.swing.JTextField frameNumberField;
     private javax.swing.JButton hcaAFbutton;
     private javax.swing.JTextField hcaAFfield;
     private javax.swing.JButton hcaSTORMbutton;
@@ -1139,8 +1269,6 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     private javax.swing.JTextField zIncField;
     private javax.swing.JTextField zRangeField;
     // End of variables declaration//GEN-END:variables
-
-
 
 
 }

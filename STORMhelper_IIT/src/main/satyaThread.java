@@ -21,7 +21,7 @@ public class satyaThread implements Runnable {
     @Override
     public void run() {
         String[][] para = msf.satyaGetSetings();
-        //msf.satyaStartSTORM(para);
+        msf.satyaStartSTORM(para);
         //msf.startSatya();
     }
     
