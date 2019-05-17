@@ -5,6 +5,7 @@
  */
 package main;
 
+import static main.mainSTORM_frame.runAcquThread;
 import mmcorej.CMMCore;
 
 /**
@@ -23,8 +24,9 @@ public class hcaSTORM implements Runnable{
     @Override
     public void run() {
          //parent_.stormIt2(parent_.ar);
-        String[][] para = parent_.getMultiColSTORMdata();
-        parent_.stormIt2col(para);
+        String[][] para = parent_.tcs_.getMultiColSTORMdata();
+//        parent_.setAllLasersOff(para);     
+        parent_.tcs_.stormIt_Satya(para); 
     }
     
 }

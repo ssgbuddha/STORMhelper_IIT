@@ -263,6 +263,67 @@ public class twoColSTORM {
         System.out.println("Finito");
     }
     
+    public void stormIt_Satya(String[][] arr){
+        double aP = 0;
+        double eP = 0;
+        long aT = 0;
+        String laserN = null;
+        String propN = null;
+        String chN = null;
+        String groupN = null;
+        
+        // get number of colors and basic path
+        int numCol = arr.length;
+        SequenceSettings acqSet = gui_.getAcquisitionManager().getAcquisitionSettings();
+        String pathB = acqSet.root+"\\"+acqSet.prefix;
+        
+        //  channel loop
+        /*parent_.af_.goToFocus();
+        
+        try {
+            core_.waitForDevice(core_.getFocusDevice());
+        } catch (Exception ex) {
+            Logger.getLogger(twoColSTORM.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+        
+        for(int i=0; i<numCol; i++){
+            // get parameters for specific color
+            aP = Double.parseDouble(arr[i][3]);
+            eP = Double.parseDouble(arr[i][4]);
+            aT = (long) Double.parseDouble(arr[i][2]);
+            laserN = arr[i][5];
+            propN = arr[i][6];
+            chN = arr[i][1];
+            groupN = arr[i][0];
+            System.out.println("Group name: " + groupN + " channel name: " + chN + " ch count: " + i);
+            System.out.println("Laser name: " + laserN + " property name: " + propN + " excPow: " + eP + " actPow: " + aP + " actTimePow: " + aT);
+            
+            // set parameters
+            try {
+                //gui_.shutter().setShutter(false);
+                System.out.println("Set: "+ laserN + " " + propN + " to " + aP);
+                core_.setProperty(laserN, propN, aP);
+                System.out.println("sleep for "+  aT);
+                TimeUnit.SECONDS.sleep(aT);
+                System.out.println("Set: "+ laserN + " " + propN + " to " + eP);
+                core_.setProperty(laserN, propN, eP);
+            } catch (Exception ex) {
+                Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            String new_path = pathB + "\\" + chN + "\\pos";
+            
+            takeTimeSeries(new_path);
+            
+            try {
+                core_.setProperty(laserN, propN, 0);
+            } catch (Exception ex) {
+                Logger.getLogger(twoColSTORM.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        System.out.println("Finito");
+    }
+    
     public void allLaserOff(String[][] arr){
         double aP = 0;
 

@@ -14,6 +14,7 @@ import org.micromanager.Studio;
 import org.micromanager.acquisition.SequenceSettings;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static main.twoColSTORM.gui_;
 import mmcorej.Configuration;
 import mmcorej.PropertySetting;
 import org.micromanager.acquisition.ChannelSpec;
@@ -31,6 +32,7 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     public Thread t2;
     public static Thread afRun;
     public static Thread hcaSTORM_;
+    public static Thread satya2colThread;
     SequenceSettings acqSet;
     public AFclass af_;
     public twoColSTORM tcs_;
@@ -57,6 +59,7 @@ public class mainSTORM_frame extends javax.swing.JFrame {
         core_ = gui_.getCMMCore();
         afRun = new Thread(new afRunnable(this));
         hcaSTORM_ = new Thread(new hcaSTORM(this));
+        satya2colThread = new Thread(new satyaThread(this));
         initComponents();
         af_ = new AFclass();
         tcs_ = new twoColSTORM(this);
@@ -113,6 +116,16 @@ public class mainSTORM_frame extends javax.swing.JFrame {
         repZstackField = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         afOnCheckBox = new javax.swing.JCheckBox();
+        jLabel13 = new javax.swing.JLabel();
+        satyaStart = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JSeparator();
+        frameNumberField = new javax.swing.JTextField();
+        jLabel14 = new javax.swing.JLabel();
+        savePathField = new javax.swing.JTextField();
+        jLabel15 = new javax.swing.JLabel();
+        expFolderField = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -302,11 +315,52 @@ public class mainSTORM_frame extends javax.swing.JFrame {
             }
         });
 
+        jLabel13.setText("IIT Guwahati 2 color STORM");
+
+        satyaStart.setText("Go");
+        satyaStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                satyaStartActionPerformed(evt);
+            }
+        });
+
+        frameNumberField.setText("20");
+        frameNumberField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                frameNumberFieldActionPerformed(evt);
+            }
+        });
+
+        jLabel14.setText("Frame number");
+
+        savePathField.setText("D:\\STORM");
+        savePathField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                savePathFieldActionPerformed(evt);
+            }
+        });
+
+        jLabel15.setText("SavePath");
+
+        expFolderField.setText("exp1");
+
+        jLabel16.setText("experiment folder");
+
+        jLabel17.setText("Presets activation via 'AutoShutter' set to 0 (inactive) and 1 (active)");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator2)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(satyaStart)
+                        .addGap(30, 30, 30)))
+                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -315,7 +369,8 @@ public class mainSTORM_frame extends javax.swing.JFrame {
                             .addComponent(jLabel4)
                             .addComponent(activationTime_label)
                             .addComponent(jLabel2)
-                            .addComponent(jLabel3))
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel17))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(FredTestButton)
@@ -386,7 +441,23 @@ public class mainSTORM_frame extends javax.swing.JFrame {
                             .addComponent(zIncField)
                             .addComponent(upperLimField)
                             .addComponent(lowerLimField))
-                        .addGap(67, 67, 67))))
+                        .addGap(67, 67, 67))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel13)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(frameNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel14))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(savePathField, javax.swing.GroupLayout.PREFERRED_SIZE, 359, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel15))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(expFolderField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel16)))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -410,7 +481,9 @@ public class mainSTORM_frame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3)))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel17)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(afHCAstormButton)
@@ -421,6 +494,24 @@ public class mainSTORM_frame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel13)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(frameNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(savePathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel15))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(expFolderField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel16))
+                .addGap(9, 9, 9)
+                .addComponent(satyaStart)
+                .addGap(18, 18, 18)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -588,31 +679,24 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     
     private void afHCAstormButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_afHCAstormButtonActionPerformed
         System.out.println("start HCA STORM");
-        afIt = Integer.parseInt(hcaAFfield.getText());
+
+        // clear runnables (get rid of previouse attached functionality)
         gui_.acquisitions().clearRunnables();
+        // creates new thread for mulit dimensional acquisition (MDA)
         runAcquThread = new Thread(new runAcquThread(this));
-        //(int frame, int position, int channel, int slice, java.lang.Runnable runnable)
+        // gets MDA settings
         acqSet = gui_.acquisitions().getAcquisitionSettings();
-        frames = acqSet.numFrames;
-        loopCount = frames/afIt;
-        int num =0;
-        gui_.acquisitions().attachRunnable(0, -1, 0, 0, afRun);
-        for (int x = 1; x <= loopCount; x++) {
-            gui_.acquisitions().attachRunnable(num, 0, 0, 0, afRun);
-            num = num +afIt;
-        }
-        //String[][] test = getMultiColSTORMdata();
-        
-        //System.out.println(Arrays.deepToString(test));
-        //gui_.acquisitions().clearRunnables();
+        // sets counter for colors 
         chCount = 1;
-        //gui_.live().setLiveMode(true);
-        //ar = getSTORMpara();
-        //runAcquThread = new Thread(new runAcquThread(this));
+        // attaches STROM functionality
+        //(int frame, int position, int channel, int slice, java.lang.Runnable runnable)
         gui_.acquisitions().attachRunnable(0, -1, 0, 0, hcaSTORM_);
+        // starts MDA thread
         runAcquThread.start();
+        //checks if thread is still running
         while(runAcquThread.isAlive()){}
         System.out.println("end HCA STORM");
+        //sets lasers off
         setAllLasersOff(getMultiColSTORMdata());
     }//GEN-LAST:event_afHCAstormButtonActionPerformed
     
@@ -651,8 +735,6 @@ public class mainSTORM_frame extends javax.swing.JFrame {
         String propN = arr[ch][6];
         System.out.println("Laser name: " + laserN + " property name: " + propN + " excPow: " + eP + " actPow: " + aP + " actTimePow: " + aT + " ch: " + ch);
         try {
-            core_.waitForDeviceType(DeviceType.XYStageDevice);
-            //gui_.shutter().setShutter(false);
             System.out.println("Set: "+ laserN + " " + propN + " to " + aP);
             core_.setProperty(laserN, propN, aP);
             System.out.println("sleep for "+  aT);
@@ -720,6 +802,90 @@ public class mainSTORM_frame extends javax.swing.JFrame {
         
     }//GEN-LAST:event_hcaSTORMbuttonActionPerformed
 
+    public static void startSatya(){
+        System.out.println("Thread Satya successful");
+    }
+ 
+    public String[][] satyaGetSetings() {
+        String[][] arr=null;
+        try {
+            //Configuration configData = core_.getConfigGroupState("STORM");
+            Configuration configData = core_.getConfigData("STORM", "STORM 462");
+            System.out.println("STORM data 462");
+            long s = configData.size();
+            for (int i=0; i<=s-1; i++){
+                PropertySetting set = configData.getSetting(i);
+                String pName = set.getPropertyName();
+                String pValue = set.getPropertyValue();
+                System.out.println("property name: " + pName);
+                System.out.println("property value: " + pValue);
+            }
+            configData = core_.getConfigData("STORM", "STORM 405");
+            System.out.println("STORM data 405");
+            s = configData.size();
+            for (int i=0; i<=s-1; i++){
+                PropertySetting set = configData.getSetting(i);
+                String pName = set.getPropertyName();
+                String pValue = set.getPropertyValue();
+                System.out.println("property name: " + pName);
+                System.out.println("property value: " + pValue);
+            }
+            configData = core_.getConfigData("STORM", "STORM 638");
+            System.out.println("STORM data 638");
+            s = configData.size();
+            for (int i=0; i<=s-1; i++){
+                PropertySetting set = configData.getSetting(i);
+                String pName = set.getPropertyName();
+                String pValue = set.getPropertyValue();
+                System.out.println("property name: " + pName);
+                System.out.println("property value: " + pValue);
+            }
+                    
+            /*SequenceSettings acqSet1 = gui_.acquisitions().getAcquisitionSettings();
+            ArrayList<ChannelSpec> channels = acqSet1.channels;
+            int s = channels.size();
+            String[][] resArr = new String[s][7];
+            for (int i=0; i<=s-1; i++){
+                ChannelSpec ch1 = channels.get(i);
+                String chh1 = ch1.config;
+                String group = core_.getChannelGroup();
+                Configuration configData = core_.getConfigData(group, chh1);
+                long si = configData.size();
+                //double roundOff = Math.round(((double) i+1.0)/(double) s * 100.0) / 100.0;
+                resArr[i][0] = group;
+                resArr[i][1] = chh1;
+                for(int ii=0; ii<=si-1; ii++){
+                    PropertySetting setting = configData.getSetting(ii);
+                    String propertyValue = setting.getPropertyValue();
+                    String propertyName = setting.getPropertyName();
+                    String deviceName = setting.getDeviceLabel();
+                    //System.out.println(deviceName+" "+propertyName+" "+propertyValue+" -> ??? STORM");
+                    if("activationTime".equals(deviceName)){
+                        resArr[i][2] = propertyValue;
+                    } else if("activationPower".equals(deviceName)){
+                        resArr[i][3] = propertyValue;
+                    }else if(deviceName.contains("aser")){
+                        if(Double.parseDouble(propertyValue)!=0){
+                            resArr[i][4] = propertyValue;
+                            resArr[i][5] = deviceName;
+                            resArr[i][6] = propertyName;
+                        } else {
+                            //System.out.println("no STORM");
+                        }
+                    }else{
+                        System.out.println("maybe: Could not find device name 'activationTime'"+deviceName+" "+propertyName+" "+propertyValue);
+                        System.out.println("or maybe: Could not find device name 'activationPower'"+deviceName+" "+propertyName+" "+propertyValue);
+                        break;
+                    }
+                }  
+            }*/
+            return arr;
+        } catch (Exception ex) {
+            Logger.getLogger(mainSTORM_frame.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }        
+    }
+    
     public static void startMDA(){
         gui_.acquisitions().runAcquisition();
         gui_.acquisitions().clearRunnables();
@@ -840,6 +1006,24 @@ public class mainSTORM_frame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_afOnCheckBoxActionPerformed
 
+    private void frameNumberFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frameNumberFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_frameNumberFieldActionPerformed
+
+    private void savePathFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_savePathFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_savePathFieldActionPerformed
+
+    private void satyaStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_satyaStartActionPerformed
+        System.out.println("Satya start STORM");
+        satya2colThread = new Thread(new satyaThread(this));
+        satya2colThread.start();
+        while(satya2colThread.isAlive()){};
+        System.out.println("Satya end STORM");
+        //sets lasers off
+        //setAllLasersOff(getMultiColSTORMdata());        
+    }//GEN-LAST:event_satyaStartActionPerformed
+
     public void setUpperLim(double upperLim) {
         upperLimField.setText(String.valueOf(upperLim));
     }
@@ -915,6 +1099,8 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     private javax.swing.JCheckBox afOnCheckBox;
     public javax.swing.JTextField afPathText;
     private javax.swing.JButton autofocusTest_button;
+    private javax.swing.JTextField expFolderField;
+    private javax.swing.JTextField frameNumberField;
     private javax.swing.JButton hcaAFbutton;
     private javax.swing.JTextField hcaAFfield;
     private javax.swing.JButton hcaSTORMbutton;
@@ -925,6 +1111,11 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -934,17 +1125,22 @@ public class mainSTORM_frame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTextField lowerLimField;
     private javax.swing.JButton repCalibButton;
     private javax.swing.JTextField repCalibField;
     private javax.swing.JButton repZstackButton;
     private javax.swing.JTextField repZstackField;
+    private javax.swing.JButton satyaStart;
     private javax.swing.JButton saveCalibButton;
+    private javax.swing.JTextField savePathField;
     private javax.swing.JTextField upperLimField;
     private javax.swing.JTextField waitRepField;
     private javax.swing.JTextField zIncField;
     private javax.swing.JTextField zRangeField;
     // End of variables declaration//GEN-END:variables
+
+
 
 
 }
