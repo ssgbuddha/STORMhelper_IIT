@@ -1,1 +1,0 @@
-https://stackoverflow.com/questions/31983000/serverpython-clientjava-communication-using-sockets
